@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Execute Advisory - SASS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4>Mark Advisory as Executed</h4>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you have executed the following advisory?</p>
+                <div class="alert alert-info">
+                    <h6>{{ advisory.title }}</h6>
+                    <p>{{ advisory.message }}</p>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle"></i> Yes, Mark as Executed
+                        </button>
+                        <a href="{% url 'advisory_detail' advisory.pk %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

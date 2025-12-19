@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - SASS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4>{{ title }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.farm_plot.id_for_label }}" class="form-label">Farm Plot *</label>
+                            {{ form.farm_plot }}
+                            {% if form.farm_plot.errors %}
+                                <div class="text-danger">{{ form.farm_plot.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.crop.id_for_label }}" class="form-label">Crop *</label>
+                            {{ form.crop }}
+                            {% if form.crop.errors %}
+                                <div class="text-danger">{{ form.crop.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.planting_date.id_for_label }}" class="form-label">Planting Date *</label>
+                            {{ form.planting_date }}
+                            {% if form.planting_date.errors %}
+                                <div class="text-danger">{{ form.planting_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.expected_harvest_date.id_for_label }}" class="form-label">Expected Harvest Date</label>
+                            {{ form.expected_harvest_date }}
+                            {% if form.expected_harvest_date.errors %}
+                                <div class="text-danger">{{ form.expected_harvest_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.expected_yield_kg.id_for_label }}" class="form-label">Expected Yield (kg)</label>
+                        {{ form.expected_yield_kg }}
+                        {% if form.expected_yield_kg.errors %}
+                            <div class="text-danger">{{ form.expected_yield_kg.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger">{{ form.notes.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-save"></i> Save
+                        </button>
+                        <a href="{% url 'planting_record_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

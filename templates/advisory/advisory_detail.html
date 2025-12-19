@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Advisory Details - SASS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-bell"></i> Advisory Details</h1>
+    <a href="{% url 'advisory_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header {% if advisory.executed %}bg-success{% else %}bg-warning{% endif %} text-white">
+                <h4>{{ advisory.title }}</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Type:</strong> {{ advisory.get_advisory_type_display }}</p>
+                <p><strong>Priority:</strong> <span class="badge {% if advisory.priority == 'high' %}bg-danger{% elif advisory.priority == 'medium' %}bg-warning{% else %}bg-info{% endif %}">{{ advisory.priority|title }}</span></p>
+                <p><strong>Message:</strong></p>
+                <p>{{ advisory.message }}</p>
+                {% if advisory.farm_plot %}
+                    <p><strong>Farm Plot:</strong> <a href="{% url 'plot_detail' advisory.farm_plot.pk %}">{{ advisory.farm_plot.location }}</a></p>
+                {% endif %}
+                {% if advisory.crop %}
+                    <p><strong>Crop:</strong> {{ advisory.crop.name }}</p>
+                {% endif %}
+                <p><strong>Created:</strong> {{ advisory.created_at|date:"M d, Y H:i" }}</p>
+                {% if advisory.executed %}
+                    <p><strong>Executed:</strong> {{ advisory.executed_at|date:"M d, Y H:i" }}</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                {% if not advisory.executed %}
+                    <a href="{% url 'advisory_execute' advisory.pk %}" class="btn btn-success btn-lg">
+                        <i class="bi bi-check-circle"></i> Mark as Executed
+                    </a>
+                {% else %}
+                    <span class="text-success"><i class="bi bi-check-circle"></i> This advisory has been executed</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

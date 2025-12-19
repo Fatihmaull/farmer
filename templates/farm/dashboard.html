@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SASS{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-house"></i> Dashboard</h1>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-map"></i> Total Farm Plots</h5>
+                <h2 class="card-text">{{ total_plots }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-seedling"></i> Active Crops</h5>
+                <h2 class="card-text">{{ active_crops }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bell"></i> Pending Advisories</h5>
+                <h2 class="card-text">{{ latest_advisories|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-thermometer-half"></i> Latest Sensor Reading</h5>
+                <h6 class="card-text">
+                    {% if latest_sensor_data %}
+                        {{ latest_sensor_data.0.recorded_at|date:"M d, Y H:i" }}
+                    {% else %}
+                        No data
+                    {% endif %}
+                </h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5><i class="bi bi-bell"></i> Latest Advisory Alerts</h5>
+            </div>
+            <div class="card-body">
+                {% if latest_advisories %}
+                    <div class="list-group">
+                        {% for advisory in latest_advisories %}
+                            <a href="{% url 'advisory_detail' advisory.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ advisory.title }}</h6>
+                                    <small>{{ advisory.created_at|timesince }} ago</small>
+                                </div>
+                                <p class="mb-1">{{ advisory.message|truncatewords:15 }}</p>
+                                <small class="badge {% if advisory.priority == 'high' %}bg-danger{% elif advisory.priority == 'medium' %}bg-warning{% else %}bg-info{% endif %}">{{ advisory.get_advisory_type_display }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'advisory_list' %}" class="btn btn-outline-primary mt-3 w-100">View All Advisories</a>
+                {% else %}
+                    <p class="text-muted">No pending advisories</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info">
+                <h5><i class="bi bi-thermometer-half"></i> Latest Sensor Readings</h5>
+            </div>
+            <div class="card-body">
+                {% if latest_sensor_data %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Plot</th>
+                                    <th>Temp (°C)</th>
+                                    <th>Moisture (%)</th>
+                                    <th>Humidity (%)</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in latest_sensor_data %}
+                                    <tr>
+                                        <td>{{ data.farm_plot.location }}</td>
+                                        <td>{{ data.temperature|default:"-" }}</td>
+                                        <td>{{ data.moisture|default:"-" }}</td>
+                                        <td>{{ data.humidity|default:"-" }}</td>
+                                        <td><small>{{ data.recorded_at|date:"M d H:i" }}</small></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="{% url 'sensor_data_list' %}" class="btn btn-outline-primary mt-3 w-100">View All Sensor Data</a>
+                {% else %}
+                    <p class="text-muted">No sensor data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success">
+                <h5><i class="bi bi-currency-dollar"></i> Price Summary</h5>
+            </div>
+            <div class="card-body">
+                {% if price_summary %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Crop</th>
+                                    <th>Current Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in price_summary %}
+                                    <tr>
+                                        <td>{{ item.crop }}</td>
+                                        <td>{{ item.price }} {{ item.unit }}/kg</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="{% url 'market_price_list' %}" class="btn btn-outline-success mt-3">View All Market Prices</a>
+                {% else %}
+                    <p class="text-muted">No price data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

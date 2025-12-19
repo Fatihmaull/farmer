@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Plot Details - SASS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-map"></i> {{ plot.location }}</h1>
+    <div>
+        <a href="{% url 'plot_edit' plot.pk %}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'plot_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5>Plot Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Location:</strong> {{ plot.location }}</p>
+                <p><strong>Size:</strong> {{ plot.size_hectares }} hectares</p>
+                <p><strong>Soil Type:</strong> {{ plot.get_soil_type_display }}</p>
+                <p><strong>Created:</strong> {{ plot.created_at|date:"M d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5>Sensor Data Chart</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="sensorChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between">
+                <h5>Related Crops</h5>
+                <a href="{% url 'planting_record_create' %}" class="btn btn-light btn-sm">
+                    <i class="bi bi-plus"></i> Add Planting Record
+                </a>
+            </div>
+            <div class="card-body">
+                {% if planting_records %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Crop</th>
+                                    <th>Planting Date</th>
+                                    <th>Expected Harvest</th>
+                                    <th>Status</th>
+                                    <th>Expected Yield</th>
+                                    <th>Actual Yield</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in planting_records %}
+                                    <tr>
+                                        <td>{{ record.crop.name }}</td>
+                                        <td>{{ record.planting_date|date:"M d, Y" }}</td>
+                                        <td>{{ record.expected_harvest_date|date:"M d, Y"|default:"-" }}</td>
+                                        <td><span class="badge bg-info">{{ record.get_status_display }}</span></td>
+                                        <td>{{ record.expected_yield_kg|default:"-" }} kg</td>
+                                        <td>{{ record.actual_yield_kg|default:"-" }} kg</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No planting records for this plot yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    {% if sensor_chart_data.labels %}
+    const ctx = document.getElementById('sensorChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ sensor_chart_data.labels|safe }},
+            datasets: [
+                {
+                    label: 'Moisture (%)',
+                    data: {{ sensor_chart_data.moisture|safe }},
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                },
+                {
+                    label: 'Temperature (°C)',
+                    data: {{ sensor_chart_data.temperature|safe }},
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                },
+                {
+                    label: 'Humidity (%)',
+                    data: {{ sensor_chart_data.humidity|safe }},
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}
+{% endblock %}
+

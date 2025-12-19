@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Knowledge Base - SASS{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-book"></i> Knowledge Base</h1>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="bi bi-lightbulb"></i> Best Practices</h5>
+            </div>
+            <div class="card-body">
+                <h6>Soil Management</h6>
+                <ul>
+                    <li>Test soil pH regularly (optimal range: 6.0-7.0)</li>
+                    <li>Rotate crops to maintain soil fertility</li>
+                    <li>Use organic compost to improve soil structure</li>
+                </ul>
+                <h6>Water Management</h6>
+                <ul>
+                    <li>Water early morning or late evening</li>
+                    <li>Monitor soil moisture levels regularly</li>
+                    <li>Use drip irrigation for water efficiency</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5><i class="bi bi-info-circle"></i> Farming Tips</h5>
+            </div>
+            <div class="card-body">
+                <h6>Pest Control</h6>
+                <ul>
+                    <li>Use natural predators when possible</li>
+                    <li>Monitor crops regularly for early detection</li>
+                    <li>Practice crop rotation to break pest cycles</li>
+                </ul>
+                <h6>Fertilization</h6>
+                <ul>
+                    <li>Apply fertilizers based on soil test results</li>
+                    <li>Use slow-release fertilizers for better absorption</li>
+                    <li>Avoid over-fertilization to prevent nutrient runoff</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-white">
+                <h5><i class="bi bi-bank"></i> Government Subsidies</h5>
+            </div>
+            <div class="card-body">
+                <h6>Available Programs</h6>
+                <ul>
+                    <li>Farm Input Subsidy Program</li>
+                    <li>Agricultural Equipment Financing</li>
+                    <li>Crop Insurance Schemes</li>
+                </ul>
+                <h6>How to Apply</h6>
+                <p>Contact your local agricultural extension office for information on available subsidies and application procedures.</p>
+                <p><strong>Contact:</strong> Ministry of Agriculture - Extension Services</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

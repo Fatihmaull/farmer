@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Advisories - SASS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-bell"></i> Advisory Recommendations</h1>
+    <div>
+        <a href="?executed=false" class="btn btn-warning">Pending</a>
+        <a href="?executed=true" class="btn btn-success">Executed</a>
+        <a href="{% url 'advisory_list' %}" class="btn btn-secondary">All</a>
+    </div>
+</div>
+
+{% if advisories %}
+    <div class="row">
+        {% for advisory in advisories %}
+            <div class="col-md-6 mb-4">
+                <div class="card {% if advisory.executed %}border-success{% else %}border-warning{% endif %}">
+                    <div class="card-header {% if advisory.executed %}bg-success{% else %}bg-warning{% endif %} text-white d-flex justify-content-between">
+                        <span>
+                            <i class="bi bi-bell"></i>
+                            {{ advisory.get_advisory_type_display }}
+                        </span>
+                        <span class="badge {% if advisory.priority == 'high' %}bg-danger{% elif advisory.priority == 'medium' %}bg-warning{% else %}bg-info{% endif %}">
+                            {{ advisory.priority|title }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ advisory.title }}</h5>
+                        <p class="card-text">{{ advisory.message }}</p>
+                        {% if advisory.farm_plot %}
+                            <p><small class="text-muted">Plot: {{ advisory.farm_plot.location }}</small></p>
+                        {% endif %}
+                        {% if advisory.crop %}
+                            <p><small class="text-muted">Crop: {{ advisory.crop.name }}</small></p>
+                        {% endif %}
+                        <p><small class="text-muted">Created: {{ advisory.created_at|date:"M d, Y H:i" }}</small></p>
+                        {% if advisory.executed %}
+                            <p><small class="text-success">Executed: {{ advisory.executed_at|date:"M d, Y H:i" }}</small></p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'advisory_detail' advisory.pk %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                        {% if not advisory.executed %}
+                            <a href="{% url 'advisory_execute' advisory.pk %}" class="btn btn-success btn-sm">
+                                <i class="bi bi-check-circle"></i> Mark as Executed
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <h5>No advisories yet!</h5>
+        <p>Advisories will be generated automatically when you add sensor data.</p>
+    </div>
+{% endif %}
+{% endblock %}
+

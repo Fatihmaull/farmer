@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Market Prices - SASS{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-currency-dollar"></i> Market Prices</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Filter by Crop</label>
+                <select name="crop" class="form-select">
+                    <option value="">All Crops</option>
+                    {% for crop in crops %}
+                        <option value="{{ crop.pk }}" {% if selected_crop == crop.pk %}selected{% endif %}>
+                            {{ crop.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-filter"></i> Filter
+                </button>
+                <a href="{% url 'market_price_list' %}" class="btn btn-secondary ms-2">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if price_trends %}
+    <div class="row mb-4">
+        {% for crop_name, trend_data in price_trends.items %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5>{{ crop_name }} Price Trend</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chart_{{ forloop.counter0 }}" height="100"></canvas>
+                        <p class="mt-2"><strong>Latest Price:</strong> {{ trend_data.latest_price }} {{ trend_data.unit }}/kg</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5>Historical Price Data</h5>
+    </div>
+    <div class="card-body">
+        {% if prices %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Crop</th>
+                            <th>Price per kg</th>
+                            <th>Unit</th>
+                            <th>Date</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for price in prices %}
+                            <tr>
+                                <td>{{ price.crop.name }}</td>
+                                <td>{{ price.price_per_kg }}</td>
+                                <td>{{ price.unit }}</td>
+                                <td>{{ price.date|date:"M d, Y" }}</td>
+                                <td>{{ price.source|default:"-" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">No price data available.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    {% for crop_name, trend_data in price_trends.items %}
+    const ctx{{ forloop.counter0 }} = document.getElementById('chart_{{ forloop.counter0 }}').getContext('2d');
+    new Chart(ctx{{ forloop.counter0 }}, {
+        type: 'line',
+        data: {
+            labels: {{ trend_data.labels|safe }},
+            datasets: [{
+                label: 'Price ({{ trend_data.unit }}/kg)',
+                data: {{ trend_data.prices|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+    {% endfor %}
+</script>
+{% endblock %}
+{% endblock %}
+
