@@ -4,6 +4,7 @@ Django settings for sass project.
 
 import os
 from pathlib import Path
+import dj_database_url # Library penting untuk database Render
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,11 +17,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# Mengambil dari Environment Variable, atau pakai default jika lokal
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+# Ubah logika agar membaca string 'True'/'False' dengan benar
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
+# Izinkan semua host (Render menggunakan domain dinamis)
 ALLOWED_HOSTS = ['*']
 
 
@@ -33,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Apps kamu
     'auth_app',
     'farm',
     'advisory',
@@ -41,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # <--- WAJIB ADA (Posisikan di sini)
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -73,25 +79,19 @@ WSGI_APPLICATION = 'sass.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# KONFIGURASI BARU (Support Render PostgreSQL & Local SQLite)
+# Render otomatis menyediakan 'DATABASE_URL' di environment variable
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME', 'farmer_db'),
-        'USER': os.getenv('DB_USER', 'root'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '3306'),
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
-    }
+    'default': dj_database_url.config(
+        # Jika di lokal tidak ada DATABASE_URL, fallback ke SQLite agar tidak error
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600
+    )
 }
 
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
-# settings.py
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -114,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kuala_Lumpur' # Saya ubah ke waktu Malaysia agar sesuai konteks
 
 USE_I18N = True
 
@@ -124,16 +124,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/' # Tambahkan slash di depan
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles' # Folder tempat statis dikumpulkan saat deploy
 
-MEDIA_URL = 'media/'
+# Pengaturan Whitenoise untuk kompresi dan caching file statis di Production
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
@@ -143,4 +145,3 @@ AUTH_USER_MODEL = 'auth_app.Farmer'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
-

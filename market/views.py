@@ -29,8 +29,11 @@ def market_price_list(request):
         price_trends[crop_name]['labels'].append(price.date.strftime('%Y-%m-%d'))
         price_trends[crop_name]['prices'].append(float(price.price_per_kg))
     
+    # Reverse the order so charts show chronological order (oldest to newest)
     # Convert to JSON for template
     for crop_name in price_trends:
+        price_trends[crop_name]['labels'].reverse()
+        price_trends[crop_name]['prices'].reverse()
         price_trends[crop_name]['labels'] = json.dumps(price_trends[crop_name]['labels'])
         price_trends[crop_name]['prices'] = json.dumps(price_trends[crop_name]['prices'])
     

@@ -38,7 +38,10 @@
                         <h5>{{ crop_name }} Price Trend</h5>
                     </div>
                     <div class="card-body">
-                        <canvas id="chart_{{ forloop.counter0 }}" height="100"></canvas>
+                        <div style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="chart_{{ forloop.counter0 }}"></canvas>
+                        </div>
+                        
                         <p class="mt-2"><strong>Latest Price:</strong> {{ trend_data.latest_price }} {{ trend_data.unit }}/kg</p>
                     </div>
                 </div>
@@ -82,35 +85,63 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
-    {% for crop_name, trend_data in price_trends.items %}
-    const ctx{{ forloop.counter0 }} = document.getElementById('chart_{{ forloop.counter0 }}').getContext('2d');
-    new Chart(ctx{{ forloop.counter0 }}, {
-        type: 'line',
-        data: {
-            labels: {{ trend_data.labels|safe }},
-            datasets: [{
-                label: 'Price ({{ trend_data.unit }}/kg)',
-                data: {{ trend_data.prices|safe }},
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: {
-                    beginAtZero: false
-                }
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if price_trends %}
+        {% for crop_name, trend_data in price_trends.items %}
+        const ctx{{ forloop.counter0 }} = document.getElementById('chart_{{ forloop.counter0 }}');
+        if (ctx{{ forloop.counter0 }} && typeof Chart !== 'undefined') {
+            const labels{{ forloop.counter0 }} = {{ trend_data.labels|safe }};
+            const prices{{ forloop.counter0 }} = {{ trend_data.prices|safe }};
+            
+            if (labels{{ forloop.counter0 }}.length > 0 && prices{{ forloop.counter0 }}.length > 0) {
+                new Chart(ctx{{ forloop.counter0 }}, {
+                    type: 'line',
+                    data: {
+                        labels: labels{{ forloop.counter0 }},
+                        datasets: [{
+                            label: 'Price ({{ trend_data.unit }}/kg)',
+                            data: prices{{ forloop.counter0 }},
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            tension: 0.1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Price ({{ trend_data.unit }}/kg)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Date'
+                                }
+                            }
+                        }
+                    }
+                });
             }
         }
+        {% endfor %}
+        {% endif %}
     });
-    {% endfor %}
 </script>
-{% endblock %}
 {% endblock %}
 
