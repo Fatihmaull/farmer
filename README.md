@@ -26,10 +26,10 @@ A web-based system to help smallholder farmers in Changlun manage farm plots, cr
      ```
      DB_NAME=farmer_db
      DB_USER=root
-     DB_PASSWORD=your-password
+     DB_PASSWORD=
      DB_HOST=localhost
      DB_PORT=3306
-     SECRET_KEY=your-secret-key-here
+     SECRET_KEY=
      DEBUG=True
      ```
 
